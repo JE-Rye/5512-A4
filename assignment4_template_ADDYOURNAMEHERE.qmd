@@ -6,33 +6,38 @@ format: html
 editor: visual
 ---
 
-::: {.panel-tabset}
-
+::: panel-tabset
 <!-- Task 1 Tab: Data and Documenting -->
-## Data Details 
+
+## Data Details
+
 ### Topic of this work
-In this project, we will study the development trend of COVID-19 from 2020 to 2025. Does the mortality rate decrease over time? The reason I chose this topic is that COVID-19 is one of the most concerned infectious diseases in the past decade. Its rapid spread, wide range of affected areas, long duration, etc. have attracted the attention of many people in society.
+
+In this project, we will study the development trend of COVID-19 from 2020 to 2025. Does the mortality rate decrease over time? Is it mainly due to the popularization of vaccination? The reason I chose this topic is that COVID-19 is one of the most concerned infectious diseases in the past decade. Its rapid spread, wide range of affected areas, long duration, etc. have attracted the attention of many people in society.
 
 ### Data description
+
 The data for this analysis mainly comes from the COVID-19 dashboard data published on the World Health Organization’s official website. These data are suitable for analysis of the trend of COVID-19 infection in the past five years, including the changes in the number of new deaths and infections over time, and the comparison of the cumulative number of deaths and infections in each region.
 
 **Datasets:**
 
-  **Weekly COVID-19 cases and deaths by date reported to WHO:**
+**Weekly COVID-19 cases and deaths by date reported to WHO:**
 
-    -   Source: World Health Organization (WHO)
+```         
+-   Source: World Health Organization (WHO)
 
-    -   Content: New cases and deaths, cumulative cases and deaths, as counted by the different regions of World Health Organization every week.
+-   Content: New cases and deaths, cumulative cases and deaths, as counted by the different regions of World Health Organization every week.
 
-    -   Last Updated: 2025
+-   Last Updated: 2025
 
-    -   Data Type: Census
+-   Data Type: Census
 
-    -   Limitations: Due to differences in case discovery, definitions, and testing strategies in different places, there may be some deviations in the statistical data.
+-   Limitations: Due to differences in case discovery, definitions, and testing strategies in different places, there may be some deviations in the statistical data.
 
-    -   Privacy/Ethics: Data is publicly available and not of risk regarding privacy. Anonymization or falsification of content is prohibited.
-    
-  **Data Fields:**
+-   Privacy/Ethics: Data is publicly available and not of risk regarding privacy. Anonymization or falsification of content is prohibited.
+```
+
+**Data Fields:**
 
 -   **Date_reported:** The date of reported cases statistics weekly
 
@@ -50,18 +55,51 @@ The data for this analysis mainly comes from the COVID-19 dashboard data publish
 
 -   **Cumulative_deaths:** New cumulative deaths per week
 
+**Number of people who completed the initial COVID-19 vaccination protocol:**
+
+```         
+-   Source: Our World in data
+
+-   Content: Daily data from various countries on people fully vaccinated with covid
+
+-   Last Updated: 2024
+
+-   Data Type: Census
+
+-   Limitations: Due to the different levels of development in different regions, the statistical data may be biased.
+
+-   Privacy/Ethics: Data is publicly available and not of risk regarding privacy. Anonymization or falsification of content is prohibited.
+```
+
+**Data Fields:**
+
+-   **Entity:** Statistical region (continent)
+
+-   **Code:** The code of collect and process data
+
+-   **Day:** Reported date
+
+-   **people_fully_vaccinated:** The number of vaccinated people
+
 ### Data download
+
 ```{r}
 library(readr)
 who_data <- read_csv("https://srhdpeuwpubsa.blob.core.windows.net/whdh/COVID/WHO-COVID-19-global-data.csv")
+
+vac_data <- read.csv("https://ourworldindata.org/grapher/people-fully-vaccinated-covid.csv?v=1&csvType=filtered&useColumnShortNames=true&country=OWID_WRL~OWID_ASI~OWID_AFR~OWID_EUR~OWID_NAM~OWID_SAM")
 ```
+
 ### Data Processing
+
 ```{r}
 # Step1: replace the value of NA into "0"
 who_data[, sapply(who_data, is.numeric)] <- lapply(who_data[, sapply(who_data, is.numeric)], function(x) ifelse(is.na(x), 0, x))
 
 # Step2: transform date type
 who_data$Date_reported <- as.Date(who_data$Date_reported)
+vac_data$Date_reported <- as.Date(vac_data$Day)
+
 
 # Step3: Aggregate global data
 library(dplyr)
@@ -86,49 +124,65 @@ library(rnaturalearth)
 library(rnaturalearthdata)
 world <- ne_countries(scale = "medium", returnclass = "sf")
 
-# Step6: Merge map data and WHO statistics
+# Step6: merge map data and WHO statistics
 world_data <- left_join(world, country_data, by = c("name" = "Country"))
 
+# Step6: get the vaccinated data of the whole world
+world_vac <- vac_data %>%
+  filter(Entity == "World") %>%
+  select(Date_reported, people_fully_vaccinated)
 
+# Step7: merge two datasets
+merged_data <- inner_join(weekly_global, world_vac, by = "Date_reported")
+
+# Step8: save the data files
+write.csv(merged_data, "data/processed_data.csv", row.names = FALSE)
 ```
 
 ### references
-1. Wickham H, Hester J, Bryan J (2024). _readr: Read Rectangular Text Data_. R package version 2.1.5, <https://CRAN.R-project.org/package=readr>.
 
-2. Wickham H, François R, Henry L, Müller K, Vaughan D (2023). _dplyr: A Grammar of Data
-  Manipulation_. R package version 1.1.4, <https://CRAN.R-project.org/package=dplyr>.
-  
-3. Pebesma, E., & Bivand, R. (2023). Spatial Data Science: With Applications in R. Chapman and Hall/CRC.
-  https://doi.org/10.1201/9780429459016
-  
-4. Massicotte P, South A (2023). _rnaturalearth: World Map Data from Natural Earth_. R package version
-  1.0.1, <https://CRAN.R-project.org/package=rnaturalearth>.
-  
-5. South A, Michael S, Massicotte P (2024). _rnaturalearthdata: World Vector Map Data from Natural Earth Used in 'rnaturalearth'_. R package version 1.0.0,
-  <https://CRAN.R-project.org/package=rnaturalearthdata>.
+1.  Wickham H, Hester J, Bryan J (2024). *readr: Read Rectangular Text Data*. R package version 2.1.5, <https://CRAN.R-project.org/package=readr>.
+
+2.  Wickham H, François R, Henry L, Müller K, Vaughan D (2023). *dplyr: A Grammar of Data Manipulation*. R package version 1.1.4, <https://CRAN.R-project.org/package=dplyr>.
+
+3.  Pebesma, E., & Bivand, R. (2023). Spatial Data Science: With Applications in R. Chapman and Hall/CRC. https://doi.org/10.1201/9780429459016
+
+4.  Massicotte P, South A (2023). *rnaturalearth: World Map Data from Natural Earth*. R package version 1.0.1, <https://CRAN.R-project.org/package=rnaturalearth>.
+
+5.  South A, Michael S, Massicotte P (2024). *rnaturalearthdata: World Vector Map Data from Natural Earth Used in 'rnaturalearth'*. R package version 1.0.0, <https://CRAN.R-project.org/package=rnaturalearthdata>.
 
 <!-- Task 2 Tab: Writing your blogpost -->
-## Blog post 
+
+## Blog post
+
 ### Introduction
-On December 12, 2019, a group of patients with atypical pneumonia appeared in Wuhan, Hubei Province, China. Since then, similar patients have continued to appear. On January 10, 2020, the World Health Organization used "2019 Novel Coronavirus" or "2019-nCoV" to refer to this epidemic (CDC, 2024). At the same time, the epidemic spread rapidly in 2020 and swept the world until the situation gradually stabilized in 2022 and countries resumed normal economic operations. This epidemic has almost disrupted daily life, affected the global medical system, and hit countries economically. It is the most serious infectious disease in the past decade. This report mainly analyzes the development trend of COVID-19 through the data on the number of new infections and deaths released by the WHO from 2020 to 2025, including the growth pattern of cases and the impact of subsequent vaccine popularization on the epidemic. Through the analysis of five years of key data and indicators, we can not only understand the evolution of the epidemic, but also provide experience and lessons for future global health emergencies.
-### Motivation
+
+On December 12, 2019, a group of patients with atypical pneumonia appeared in Wuhan, Hubei Province, China. Since then, similar patients have continued to appear. On January 10, 2020, the World Health Organization used "2019 Novel Coronavirus" or "2019-nCoV" to refer to this epidemic (CDC, 2024). At the same time, the epidemic spread rapidly in 2020 and swept the world until the situation gradually stabilized in 2022 and countries resumed normal economic operations. This epidemic has almost disrupted daily life, affected the global medical system, and hit countries economically. It is the most serious infectious disease in the past decade. This report mainly analyzes the development trend of COVID-19 through the data on the number of new infections and deaths released by the WHO from 2020 to 2025, including the growth pattern of cases and the impact of subsequent vaccine popularization on the epidemic. Through the analysis of five years of key data and indicators, we can not only understand the evolution of the epidemic, but also provide experience and lessons for future global health emergencies. 
+
+### Motivation 
+
 It is undeniable that COVID-19 is the most serious infectious disease in the past decade, exposing the fragility of medical infrastructure and policy coordination for emergency response. Priya et. al.(2021) stated that the incident had a significant impact on energy, economy and environment, including the collapse of energy markets leading to oversupply and falling oil prices. In addition, the epidemic has been repeated, and the emergence of variants has made case studies more difficult. In addition, there are differences in economic level and culture between regions, resulting in different response methods and results in various places.
 
 This report systematically sorts out the changing trends and key nodes of the epidemic in the past five years, fully evaluates the epidemic prevention in this incident, provides experience and lessons for the development of global public health, and establishes a sustainable development system in the future.
 
 ### Methodology
+
 This report mainly uses the latest weekly reports of COVID-19 cases and deaths published on the WHO website. Focus on observing and analyzing relevant indicators, including weekly new cases and deaths, cumulative new cases and deaths, and mortality rates, which are mainly divided into three periods: initial outbreak period, normalized prevention and control period, full release period, and stable control period.
 
 Analysis method:
 
 Mortality rate = cumulative number of deaths/cumulative number of infected cases
 
-1. Draw a time series of new deaths and infections: get a preliminary understanding of the development trend of the new crown.
+1.  Draw a time series of new deaths and infections: get a preliminary understanding of the development trend of the new crown.
 
-2. Atlas of infected cases: compare the severity of each region and evaluate the response.
+2.  Atlas of infected cases: compare the severity of each region and evaluate the response.
+
+3.  A dual axis graph： Study the relationship between vaccination and the number of infections
 
 ### Analysis
-#### 1
+
+#### 1.The time series of new deaths and infections
+
 ```{r}
 #| label: fig-trend-infections
 #| fig-cap: "Trend in the number of new infections worldwide"
@@ -151,6 +205,19 @@ ggplot(weekly_global, aes(x = Date_reported, y = New_cases)) +
   theme_minimal()
 ```
 
+According to @fig-trend-infections, the number of newly confirmed cases worldwide shows the following trends between 2020 and 2025:
+
+2020: At the beginning of the epidemic, the number of new cases was low, but the infection rate was fast.
+
+2021: The number of new cases increased significantly, reflecting the acceleration of virus transmission or the improvement of detection capabilities.
+
+2022: The number of new cases continued to rise, which is the peak of the epidemic.
+
+2023: The number of new cases began to decline, which may benefit from vaccination or prevention and control measures.
+
+2024-2025: The number of new cases tended to stabilize and remained at a low level, indicating that the epidemic may enter the normalization stage.
+
+In conclusion, it shows that the overall global epidemic presents a curve of "first a sharp rise and then a gradual decline". The decline in data since 2022 reflects the impact of public health measures and vaccination, showing that the global epidemic situation is gradually improving, but we still need to continue to pay attention to potential mutant strains and the long-term effects of prevention and control measures.
 
 ```{r}
 #| label: fig-trend-deaths
@@ -172,7 +239,20 @@ ggplot(weekly_global, aes(x = Date_reported, y = New_deaths)) +
   theme_minimal()
 ```
 
-#### 2.
+According to @fig-trend-deaths, the trend analysis of the number of new deaths per day around the world (2020–2025) is shown:
+
+2020: The number of deaths surged in the early stages of the epidemic, reflecting the pressure on the medical system and the lack of effective intervention measures.
+
+2021: In the outbreak period, there are variants and uneven distribution of vaccines, which may cause fluctuations.
+
+2022: Gradually began to decline due to effective treatment and vaccination.
+
+2023–2025: Stable at a low level, indicating that the epidemic has become normalized.
+
+In short, the early peak indicates that the world's response to the emergency health incident was insufficient, and the gradual decline in the later period proves the effectiveness of medical and public health measures.
+
+#### 2. Atlas of infected cases and deaths
+
 ```{r}
 #| label: fig-map-infections
 #| fig-cap: "Distribution of global cumulative number of infections"
@@ -197,33 +277,132 @@ ggplot(world_data) +
   theme_minimal()
 ```
 
+According to @fig-map-infections and @fig-map-deaths, the global cumulative infection and death distribution is shown:
 
+1.  Cumulative infection distribution
 
+High-incidence areas: densely populated areas or areas with weak prevention and control.
 
+Medium-incidence areas: Europe, Southeast Asia, related to the spread of mutant strains.
 
+Low-incidence areas: remote islands or countries with early strict blockades.
 
-### Conclusions and Recommendations 200
+2.  Cumulative death distribution
 
-### References 
-1. CDC. (2024). CDC Museum COVID-19 Timeline. https://www.cdc.gov/museum/timeline/covid19.html
+High mortality area: countries with medical overload or delayed response.
 
-2. Priya, S. S., Cuce, E., & Sudhakar, K. (2021). A perspective of COVID 19 impact on global economy, energy and environment. International Journal of Sustainable Engineering, 14(6), 1290-1305. https://doi.org/10.1080/19397038.2021.1964634
+Medium mortality area: areas hit hard by aging or mutant strains.
 
-3. H. Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York, 2016.
+Low mortality area: isolated or strong prevention and control areas.
 
-4. Wickham H, Pedersen T, Seidel D (2023). _scales: Scale Functions for Visualization_. R
-  package version 1.3.0, <https://CRAN.R-project.org/package=scales>.
+In conclusion, the number of deaths is not completely positively correlated with the number of infections, which depends on the level of medical care and vaccination. At the same time, long-term trends also reveal the profound impact of resource inequality on the outcome of the epidemic. The World Health Organization needs strategic planning and pays attention to the health status of economically underdeveloped areas. 
+
+#### 3. The relationship between infections cases and vaccinated
+```{r}
+#| label: fig-relationship
+#| fig-cap: "Global cumulative number of infections vs number of people vaccinated"
+max_cases <- max(merged_data$Cumulative_cases, na.rm = TRUE)
+max_vax <- max(merged_data$people_fully_vaccinated, na.rm = TRUE)
+
+merged_data <- merged_data %>%
+  mutate(
+    vax_scaled = people_fully_vaccinated * max_cases / max_vax
+  )
+
+ggplot(merged_data, aes(x = Date_reported)) +
+  geom_point(aes(y = Cumulative_cases), color = "red", alpha = 0.5) +
+  geom_smooth(aes(y = Cumulative_cases), method = "loess", se = FALSE, color = "darkred") +
   
+  geom_point(aes(y = vax_scaled), color = "blue", alpha = 0.5) +
+  geom_smooth(aes(y = vax_scaled), method = "loess", se = FALSE, color = "darkblue") +
 
-  
+  scale_x_date(
+    date_breaks = "1 year",
+    date_labels = "%Y",
+    limits = as.Date(c("2020-01-01", "2025-12-31"))
+  ) +
 
+  scale_y_continuous(
+    name = "Cumulative number of infections",
+    labels = comma,
+    sec.axis = sec_axis(~ . * max_vax / max_cases,
+                        name = "Number of people vaccinated", labels = comma)
+  ) +
+
+  scale_color_manual(
+    name = "Type",
+    values = c("Number of infections" = "red", "Number of people vaccinated" = "blue")
+  ) +
+
+  labs(
+    title = "Global cumulative number of infections vs number of people vaccinated",
+    x = "Year"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom") 
+```
+
+According to @fig-relationship, the relationship between global cumulative infections and vaccination is shown 2020: Infections increased, and vaccines were not widely available.
+
+2021: Infections surged and the virus mutated, and vaccination started
+
+2022: Infections reached their peak, vaccination popularization accelerated, and the growth rate slowed down.
+
+2023-2025: The effectiveness of medical and public health measures gradually reduced infections, and vaccine coverage reached a peak at this time.
+
+In short, this shows that vaccination is strongly correlated with the decline in infections, but there is a time lag.
+
+
+### Conclusions and Recommendations
+Through the analysis of relevant charts, we understand the overall trend of the development of the epidemic. The peak period is concentrated in 2021-2022. At the same time, since 2020, due to the popularization of vaccines, the recovery of medical systems in various countries and the effective implementation of prevention and control measures, the epidemic has begun to improve, and gradually stabilized and entered a normalized period between 2024 and 2025. In addition, vaccination has played a key role in reducing mortality and promoting social reopening, but unequal access to vaccines and inconsistent policy responses have hindered global economic recovery.
+
+By reflecting on this global emergency, the following suggestions are made:
+
+1. Increase international cooperation in vaccine distribution and data sharing;
+
+2. Strengthen public health infrastructure to quickly expand and respond to emergencies;
+
+3. Strengthen exchanges between countries to implement economic recovery plans；
+
+4. Communities can set up psychological counseling rooms to pay attention to people's mental health.
+
+### References
+
+1.  CDC. (2024). CDC Museum COVID-19 Timeline. https://www.cdc.gov/museum/timeline/covid19.html
+
+2.  Priya, S. S., Cuce, E., & Sudhakar, K. (2021). A perspective of COVID 19 impact on global economy, energy and environment. International Journal of Sustainable Engineering, 14(6), 1290-1305. https://doi.org/10.1080/19397038.2021.1964634
+
+3.  H. Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York, 2016.
+
+4.  Wickham H, Pedersen T, Seidel D (2023). *scales: Scale Functions for Visualization*. R package version 1.3.0, <https://CRAN.R-project.org/package=scales>.
 
 <!-- Task 3 Tab: Behind the Scenes -  -->
+
 ## Behind the Scenes
 
-### What's in this section
+### Q5
+Tell us about parts of your data processing or analysis that weren’t “sexy” and wouldn’t typically be included in a blog post.
 
-Here is where you should tell us about your reflection on your analysis (Task 3).
+When describing the development trend of COVID-19, we can compare the infection trends of several typical countries to analyze the global situation; or focus on the turning points of change and analyze them in detail in combination with events or important achievements.
 
-Again, these are the details about **your** perspective and the gritty details behind the scenes of your analysis.
+In addition, the data on the number of people vaccinated initially is used to analyze the relationship between vaccines and the number of infections. The data on the number of people vaccinated initially can be combined with the data on complete vaccinations or booster shots to further analyze the role of vaccines.
+### Q6
+Were there any challenges that you faced in conducting this analysis. These may take the form of data limitations or coding challenges?
 
+The main challenge is that when drawing the atlas, there is no latitude and longitude in the original data, only the country name, so I am proud to have learned to install and use `rnaturalearth` and `rnaturalearthdata`.
+
+In addition, when drawing a chart, sometimes such data is displayed, such as 2e+07, which made me learn `scale_y_continuous()` to set the number format.
+
+Finally, when I wanted to show the relationship between vaccination and the number of infections, I learned to use 'sec.axis' to scale one side of the data to draw a dual-axis chart.
+
+### Q7
+Tell us about any imperfect parts of your work and how you would like to expand or improve this analysis in future? Be clear about any limitations or aspects of your analysis that fell beyond scope.
+
+When analyzing the relationship between vaccination and the number of infections, the strong correlation was demonstrated through the aggregated statistical data, and no further analysis was performed. I hope to learn regression analysis and other methods to further strengthen the analysis. In addition, as the epidemic develops, there are many variants and different vaccines being developed, and more relevant data can be collected to analyze the effects of different vaccines on different variants.
+
+### Q8
+Also submit 4 earlier versions of your assignment to show your iterative process. These should be your messy versions and include exploratory code. We recommend you save these files as you progress through your assignment. Provide a short overview for markers of what you fixed/learnt/improved/changed between each file.
+
+This is [my repository](https://github.com/JE-Rye/5512-A4.git).
+
+:::
