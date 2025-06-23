@@ -157,9 +157,9 @@ write.csv(merged_data, "data/processed_data.csv", row.names = FALSE)
 
 ### Introduction
 
-On December 12, 2019, a group of patients with atypical pneumonia appeared in Wuhan, Hubei Province, China. Since then, similar patients have continued to appear. On January 10, 2020, the World Health Organization used "2019 Novel Coronavirus" or "2019-nCoV" to refer to this epidemic (CDC, 2024). At the same time, the epidemic spread rapidly in 2020 and swept the world until the situation gradually stabilized in 2022 and countries resumed normal economic operations. This epidemic has almost disrupted daily life, affected the global medical system, and hit countries economically. It is the most serious infectious disease in the past decade. This report mainly analyzes the development trend of COVID-19 through the data on the number of new infections and deaths released by the WHO from 2020 to 2025, including the growth pattern of cases and the impact of subsequent vaccine popularization on the epidemic. Through the analysis of five years of key data and indicators, we can not only understand the evolution of the epidemic, but also provide experience and lessons for future global health emergencies. 
+On December 12, 2019, a group of patients with atypical pneumonia appeared in Wuhan, Hubei Province, China. Since then, similar patients have continued to appear. On January 10, 2020, the World Health Organization used "2019 Novel Coronavirus" or "2019-nCoV" to refer to this epidemic (CDC, 2024). At the same time, the epidemic spread rapidly in 2020 and swept the world until the situation gradually stabilized in 2022 and countries resumed normal economic operations. This epidemic has almost disrupted daily life, affected the global medical system, and hit countries economically. It is the most serious infectious disease in the past decade. This report mainly analyzes the development trend of COVID-19 through the data on the number of new infections and deaths released by the WHO from 2020 to 2025, including the growth pattern of cases and the impact of subsequent vaccine popularization on the epidemic. Through the analysis of five years of key data and indicators, we can not only understand the evolution of the epidemic, but also provide experience and lessons for future global health emergencies.
 
-### Motivation 
+### Motivation
 
 It is undeniable that COVID-19 is the most serious infectious disease in the past decade, exposing the fragility of medical infrastructure and policy coordination for emergency response. Priya et. al.(2021) stated that the incident had a significant impact on energy, economy and environment, including the collapse of energy markets leading to oversupply and falling oil prices. In addition, the epidemic has been repeated, and the emergence of variants has made case studies more difficult. In addition, there are differences in economic level and culture between regions, resulting in different response methods and results in various places.
 
@@ -295,9 +295,10 @@ Medium mortality area: areas hit hard by aging or mutant strains.
 
 Low mortality area: isolated or strong prevention and control areas.
 
-In conclusion, the number of deaths is not completely positively correlated with the number of infections, which depends on the level of medical care and vaccination. At the same time, long-term trends also reveal the profound impact of resource inequality on the outcome of the epidemic. The World Health Organization needs strategic planning and pays attention to the health status of economically underdeveloped areas. 
+In conclusion, the number of deaths is not completely positively correlated with the number of infections, which depends on the level of medical care and vaccination. At the same time, long-term trends also reveal the profound impact of resource inequality on the outcome of the epidemic. The World Health Organization needs strategic planning and pays attention to the health status of economically underdeveloped areas.
 
 #### 3. The relationship between infections cases and vaccinated
+
 ```{r}
 #| label: fig-relationship
 #| fig-cap: "Global cumulative number of infections vs number of people vaccinated"
@@ -352,19 +353,19 @@ According to @fig-relationship, the relationship between global cumulative infec
 
 In short, this shows that vaccination is strongly correlated with the decline in infections, but there is a time lag.
 
-
 ### Conclusions and Recommendations
+
 Through the analysis of relevant charts, we understand the overall trend of the development of the epidemic. The peak period is concentrated in 2021-2022. At the same time, since 2020, due to the popularization of vaccines, the recovery of medical systems in various countries and the effective implementation of prevention and control measures, the epidemic has begun to improve, and gradually stabilized and entered a normalized period between 2024 and 2025. In addition, vaccination has played a key role in reducing mortality and promoting social reopening, but unequal access to vaccines and inconsistent policy responses have hindered global economic recovery.
 
 By reflecting on this global emergency, the following suggestions are made:
 
-1. Increase international cooperation in vaccine distribution and data sharing;
+1.  Increase international cooperation in vaccine distribution and data sharing;
 
-2. Strengthen public health infrastructure to quickly expand and respond to emergencies;
+2.  Strengthen public health infrastructure to quickly expand and respond to emergencies;
 
-3. Strengthen exchanges between countries to implement economic recovery plans；
+3.  Strengthen exchanges between countries to implement economic recovery plans；
 
-4. Communities can set up psychological counseling rooms to pay attention to people's mental health.
+4.  Communities can set up psychological counseling rooms to pay attention to people's mental health.
 
 ### References
 
@@ -381,13 +382,12 @@ By reflecting on this global emergency, the following suggestions are made:
 ## Behind the Scenes
 
 ### Q5
+
 Tell us about parts of your data processing or analysis that weren’t “sexy” and wouldn’t typically be included in a blog post.
 
 When describing the development trend of COVID-19, we can compare the infection trends of several typical countries to analyze the global situation; or focus on the turning points of change and analyze them in detail in combination with events or important achievements.
 
-In addition, the data on the number of people vaccinated initially is used to analyze the relationship between vaccines and the number of infections. The data on the number of people vaccinated initially can be combined with the data on complete vaccinations or booster shots to further analyze the role of vaccines.
-### Q6
-Were there any challenges that you faced in conducting this analysis. These may take the form of data limitations or coding challenges?
+In addition, the data on the number of people vaccinated initially is used to analyze the relationship between vaccines and the number of infections. The data on the number of people vaccinated initially can be combined with the data on complete vaccinations or booster shots to further analyze the role of vaccines. \### Q6 Were there any challenges that you faced in conducting this analysis. These may take the form of data limitations or coding challenges?
 
 The main challenge is that when drawing the atlas, there is no latitude and longitude in the original data, only the country name, so I am proud to have learned to install and use `rnaturalearth` and `rnaturalearthdata`.
 
@@ -396,13 +396,14 @@ In addition, when drawing a chart, sometimes such data is displayed, such as 2e+
 Finally, when I wanted to show the relationship between vaccination and the number of infections, I learned to use 'sec.axis' to scale one side of the data to draw a dual-axis chart.
 
 ### Q7
+
 Tell us about any imperfect parts of your work and how you would like to expand or improve this analysis in future? Be clear about any limitations or aspects of your analysis that fell beyond scope.
 
 When analyzing the relationship between vaccination and the number of infections, the strong correlation was demonstrated through the aggregated statistical data, and no further analysis was performed. I hope to learn regression analysis and other methods to further strengthen the analysis. In addition, as the epidemic develops, there are many variants and different vaccines being developed, and more relevant data can be collected to analyze the effects of different vaccines on different variants.
 
 ### Q8
+
 Also submit 4 earlier versions of your assignment to show your iterative process. These should be your messy versions and include exploratory code. We recommend you save these files as you progress through your assignment. Provide a short overview for markers of what you fixed/learnt/improved/changed between each file.
 
-This is [my repository](https://github.com/JE-Rye/5512-A4.git).
-
+This is [my repository](https://github.com/JE-Rye/5512-A4.git)
 :::

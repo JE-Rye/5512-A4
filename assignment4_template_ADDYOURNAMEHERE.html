@@ -110,7 +110,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <section id="topic-of-this-work" class="level3">
 <h3 class="anchored" data-anchor-id="topic-of-this-work">Topic of this work</h3>
-<p>In this project, we will study the development trend of COVID-19 from 2020 to 2025. Does the mortality rate decrease over time? The reason I chose this topic is that COVID-19 is one of the most concerned infectious diseases in the past decade. Its rapid spread, wide range of affected areas, long duration, etc. have attracted the attention of many people in society.</p>
+<p>In this project, we will study the development trend of COVID-19 from 2020 to 2025. Does the mortality rate decrease over time? Is it mainly due to the popularization of vaccination? The reason I chose this topic is that COVID-19 is one of the most concerned infectious diseases in the past decade. Its rapid spread, wide range of affected areas, long duration, etc. have attracted the attention of many people in society.</p>
 </section>
 <section id="data-description" class="level3">
 <h3 class="anchored" data-anchor-id="data-description">Data description</h3>
@@ -128,7 +128,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 -   Limitations: Due to differences in case discovery, definitions, and testing strategies in different places, there may be some deviations in the statistical data.
 
 -   Privacy/Ethics: Data is publicly available and not of risk regarding privacy. Anonymization or falsification of content is prohibited.</code></pre>
-<p><strong>Data Fields:</strong></p>
+<p><strong>Data Dictionary:</strong></p>
 <ul>
 <li><p><strong>Date_reported:</strong> The date of reported cases statistics weekly</p></li>
 <li><p><strong>Country_code:</strong> The code of countries</p></li>
@@ -139,12 +139,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><strong>New deaths:</strong> New deaths per week</p></li>
 <li><p><strong>Cumulative_deaths:</strong> New cumulative deaths per week</p></li>
 </ul>
+<p><strong>Number of people who completed the initial COVID-19 vaccination protocol:</strong></p>
+<pre><code>-   Source: Our World in data
+
+-   Content: Daily data from various countries on people fully vaccinated with covid
+
+-   Last Updated: 2024
+
+-   Data Type: Census
+
+-   Limitations: Due to the different levels of development in different regions, the statistical data may be biased.
+
+-   Privacy/Ethics: Data is publicly available and not of risk regarding privacy. Anonymization or falsification of content is prohibited.</code></pre>
+<p><strong>Data Dictionary:</strong></p>
+<ul>
+<li><p><strong>Entity:</strong> Statistical region (continent)</p></li>
+<li><p><strong>Code:</strong> The code of collect and process data</p></li>
+<li><p><strong>Day:</strong> Reported date</p></li>
+<li><p><strong>people_fully_vaccinated:</strong> The number of vaccinated people</p></li>
+</ul>
 </section>
 <section id="data-download" class="level3">
 <h3 class="anchored" data-anchor-id="data-download">Data download</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>who_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://srhdpeuwpubsa.blob.core.windows.net/whdh/COVID/WHO-COVID-19-global-data.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>who_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://srhdpeuwpubsa.blob.core.windows.net/whdh/COVID/WHO-COVID-19-global-data.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Rows: 67920 Columns: 8
 ── Column specification ────────────────────────────────────────────────────────
@@ -156,22 +175,92 @@ date (1): Date_reported
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>vac_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"https://ourworldindata.org/grapher/people-fully-vaccinated-covid.csv?v=1&amp;csvType=filtered&amp;useColumnShortNames=true&amp;country=OWID_WRL~OWID_ASI~OWID_AFR~OWID_EUR~OWID_NAM~OWID_SAM"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="data-processing" class="level3">
 <h3 class="anchored" data-anchor-id="data-processing">Data Processing</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step1: replace the value of NA into "0"</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>who_data[, <span class="fu">sapply</span>(who_data, is.numeric)] <span class="ot">&lt;-</span> <span class="fu">lapply</span>(who_data[, <span class="fu">sapply</span>(who_data, is.numeric)], <span class="cf">function</span>(x) <span class="fu">ifelse</span>(<span class="fu">is.na</span>(x), <span class="dv">0</span>, x))</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Step2: </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step1: replace the value of NA into "0"</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>who_data[, <span class="fu">sapply</span>(who_data, is.numeric)] <span class="ot">&lt;-</span> <span class="fu">lapply</span>(who_data[, <span class="fu">sapply</span>(who_data, is.numeric)], <span class="cf">function</span>(x) <span class="fu">ifelse</span>(<span class="fu">is.na</span>(x), <span class="dv">0</span>, x))</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Step2: transform date type</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>who_data<span class="sc">$</span>Date_reported <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(who_data<span class="sc">$</span>Date_reported)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>vac_data<span class="sc">$</span>Date_reported <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(vac_data<span class="sc">$</span>Day)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Step3: Aggregate global data</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>weekly_global <span class="ot">&lt;-</span> who_data <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Date_reported) <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">New_cases =</span> <span class="fu">sum</span>(New_cases, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">New_deaths =</span> <span class="fu">sum</span>(New_deaths, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Cumulative_cases =</span> <span class="fu">sum</span>(New_cases, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Cumulative_deaths =</span> <span class="fu">sum</span>(New_deaths, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Step4: Aggregate every country data</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>country_data <span class="ot">&lt;-</span> who_data <span class="sc">%&gt;%</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Country) <span class="sc">%&gt;%</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Date_reported <span class="sc">==</span> <span class="fu">max</span>(Date_reported)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Date_reported, Country, Cumulative_cases, Cumulative_deaths)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Step5: get world map data (country outlines)</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Linking to GEOS 3.13.0, GDAL 3.8.5, PROJ 9.5.1; sf_use_s2() is TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rnaturalearth)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rnaturalearthdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'rnaturalearthdata'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:rnaturalearth':
+
+    countries110</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>world <span class="ot">&lt;-</span> <span class="fu">ne_countries</span>(<span class="at">scale =</span> <span class="st">"medium"</span>, <span class="at">returnclass =</span> <span class="st">"sf"</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Step6: merge map data and WHO statistics</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>world_data <span class="ot">&lt;-</span> <span class="fu">left_join</span>(world, country_data, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"name"</span> <span class="ot">=</span> <span class="st">"Country"</span>))</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Step6: get the vaccinated data of the whole world</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>world_vac <span class="ot">&lt;-</span> vac_data <span class="sc">%&gt;%</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Entity <span class="sc">==</span> <span class="st">"World"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Date_reported, people_fully_vaccinated)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Step7: merge two datasets</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>merged_data <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(weekly_global, world_vac, <span class="at">by =</span> <span class="st">"Date_reported"</span>)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Step8: save the data files</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(merged_data, <span class="st">"data/processed_data.csv"</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="references" class="level3">
 <h3 class="anchored" data-anchor-id="references">references</h3>
 <ol type="1">
 <li><p>Wickham H, Hester J, Bryan J (2024). <em>readr: Read Rectangular Text Data</em>. R package version 2.1.5, <a href="https://CRAN.R-project.org/package=readr" class="uri">https://CRAN.R-project.org/package=readr</a>.</p></li>
-<li></li>
+<li><p>Wickham H, François R, Henry L, Müller K, Vaughan D (2023). <em>dplyr: A Grammar of Data Manipulation</em>. R package version 1.1.4, <a href="https://CRAN.R-project.org/package=dplyr" class="uri">https://CRAN.R-project.org/package=dplyr</a>.</p></li>
+<li><p>Pebesma, E., &amp; Bivand, R. (2023). Spatial Data Science: With Applications in R. Chapman and Hall/CRC. https://doi.org/10.1201/9780429459016</p></li>
+<li><p>Massicotte P, South A (2023). <em>rnaturalearth: World Map Data from Natural Earth</em>. R package version 1.0.1, <a href="https://CRAN.R-project.org/package=rnaturalearth" class="uri">https://CRAN.R-project.org/package=rnaturalearth</a>.</p></li>
+<li><p>South A, Michael S, Massicotte P (2024). <em>rnaturalearthdata: World Vector Map Data from Natural Earth Used in ‘rnaturalearth’</em>. R package version 1.0.0, <a href="https://CRAN.R-project.org/package=rnaturalearthdata" class="uri">https://CRAN.R-project.org/package=rnaturalearthdata</a>.</p></li>
 </ol>
 <!-- Task 2 Tab: Writing your blogpost -->
 </section>
@@ -179,29 +268,299 @@ date (1): Date_reported
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <section id="introduction" class="level3">
 <h3 class="anchored" data-anchor-id="introduction">Introduction</h3>
+<p>On December 12, 2019, a group of patients with atypical pneumonia appeared in Wuhan, Hubei Province, China. Since then, similar patients have continued to appear. On January 10, 2020, the World Health Organization used “2019 Novel Coronavirus” or “2019-nCoV” to refer to this epidemic (CDC, 2024). At the same time, the epidemic spread rapidly in 2020 and swept the world until the situation gradually stabilized in 2022 and countries resumed normal economic operations. This epidemic has almost disrupted daily life, affected the global medical system, and hit countries economically. It is the most serious infectious disease in the past decade. This report mainly analyzes the development trend of COVID-19 through the data on the number of new infections and deaths released by the WHO from 2020 to 2025, including the growth pattern of cases and the impact of subsequent vaccine popularization on the epidemic. Through the analysis of five years of key data and indicators, we can not only understand the evolution of the epidemic, but also provide experience and lessons for future global health emergencies.</p>
 </section>
 <section id="motivation" class="level3">
 <h3 class="anchored" data-anchor-id="motivation">Motivation</h3>
+<p>It is undeniable that COVID-19 is the most serious infectious disease in the past decade, exposing the fragility of medical infrastructure and policy coordination for emergency response. Priya et. al.(2021) stated that the incident had a significant impact on energy, economy and environment, including the collapse of energy markets leading to oversupply and falling oil prices. In addition, the epidemic has been repeated, and the emergence of variants has made case studies more difficult. In addition, there are differences in economic level and culture between regions, resulting in different response methods and results in various places.</p>
+<p>This report systematically sorts out the changing trends and key nodes of the epidemic in the past five years, fully evaluates the epidemic prevention in this incident, provides experience and lessons for the development of global public health, and establishes a sustainable development system in the future.</p>
 </section>
 <section id="methodology" class="level3">
 <h3 class="anchored" data-anchor-id="methodology">Methodology</h3>
+<p>This report mainly uses the latest weekly reports of COVID-19 cases and deaths published on the WHO website. Focus on observing and analyzing relevant indicators, including weekly new cases and deaths, cumulative new cases and deaths, and mortality rates, which are mainly divided into three periods: initial outbreak period, normalized prevention and control period, full release period, and stable control period.</p>
+<p>Analysis method:</p>
+<p>Mortality rate = cumulative number of deaths/cumulative number of infected cases</p>
+<ol type="1">
+<li><p>Draw a time series of new deaths and infections: get a preliminary understanding of the development trend of the new crown.</p></li>
+<li><p>Atlas of infected cases: compare the severity of each region and evaluate the response.</p></li>
+<li><p>A dual axis graph： Study the relationship between vaccination and the number of infections</p></li>
+</ol>
 </section>
 <section id="analysis" class="level3">
 <h3 class="anchored" data-anchor-id="analysis">Analysis</h3>
+<section id="the-time-series-of-new-deaths-and-infections" class="level4">
+<h4 class="anchored" data-anchor-id="the-time-series-of-new-deaths-and-infections">1.The time series of new deaths and infections</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'scales'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:readr':
+
+    col_factor</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Scatter plot of new infections + trend line</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(weekly_global, <span class="fu">aes</span>(<span class="at">x =</span> Date_reported, <span class="at">y =</span> New_cases)) <span class="sc">+</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"steelblue"</span>) <span class="sc">+</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"darkblue"</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">date_breaks =</span> <span class="st">"1 year"</span>,</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">date_labels =</span> <span class="st">"%Y"</span>,</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(<span class="st">"2020-01-01"</span>, <span class="st">"2025-12-31"</span>))</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>comma) <span class="sc">+</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Trends in the number of new infections worldwide"</span>,</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Year"</span>, <span class="at">y =</span> <span class="st">"Number of new confirmed cases"</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+ℹ Please use `linewidth` instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-trend-infections" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-trend-infections-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="assignment4_template_ADDYOURNAMEHERE_files/figure-html/fig-trend-infections-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-trend-infections-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Trend in the number of new infections worldwide
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>According to <a href="#fig-trend-infections" class="quarto-xref">Figure&nbsp;1</a>, the number of newly confirmed cases worldwide shows the following trends between 2020 and 2025:</p>
+<p>2020: At the beginning of the epidemic, the number of new cases was low, but the infection rate was fast.</p>
+<p>2021: The number of new cases increased significantly, reflecting the acceleration of virus transmission or the improvement of detection capabilities.</p>
+<p>2022: The number of new cases continued to rise, which is the peak of the epidemic.</p>
+<p>2023: The number of new cases began to decline, which may benefit from vaccination or prevention and control measures.</p>
+<p>2024-2025: The number of new cases tended to stabilize and remained at a low level, indicating that the epidemic may enter the normalization stage.</p>
+<p>In conclusion, it shows that the overall global epidemic presents a curve of “first a sharp rise and then a gradual decline”. The decline in data since 2022 reflects the impact of public health measures and vaccination, showing that the global epidemic situation is gradually improving, but we still need to continue to pay attention to potential mutant strains and the long-term effects of prevention and control measures.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Scatter plot + trend line of new deaths</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(weekly_global, <span class="fu">aes</span>(<span class="at">x =</span> Date_reported, <span class="at">y =</span> New_deaths)) <span class="sc">+</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"tomato"</span>) <span class="sc">+</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"darkred"</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">date_breaks =</span> <span class="st">"1 year"</span>,</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">date_labels =</span> <span class="st">"%Y"</span>,</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(<span class="st">"2020-01-01"</span>, <span class="st">"2025-12-31"</span>))</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>comma) <span class="sc">+</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Trend of new deaths worldwide every day"</span>,</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Year"</span>, <span class="at">y =</span> <span class="st">"Number of new deaths"</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-trend-deaths" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-trend-deaths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="assignment4_template_ADDYOURNAMEHERE_files/figure-html/fig-trend-deaths-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-trend-deaths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Trend of new deaths worldwide every day
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>According to <a href="#fig-trend-deaths" class="quarto-xref">Figure&nbsp;2</a>, the trend analysis of the number of new deaths per day around the world (2020–2025) is shown:</p>
+<p>2020: The number of deaths surged in the early stages of the epidemic, reflecting the pressure on the medical system and the lack of effective intervention measures.</p>
+<p>2021: In the outbreak period, there are variants and uneven distribution of vaccines, which may cause fluctuations.</p>
+<p>2022: Gradually began to decline due to effective treatment and vaccination.</p>
+<p>2023–2025: Stable at a low level, indicating that the epidemic has become normalized.</p>
+<p>In short, the early peak indicates that the world’s response to the emergency health incident was insufficient, and the gradual decline in the later period proves the effectiveness of medical and public health measures.</p>
+</section>
+<section id="atlas-of-infected-cases-and-deaths" class="level4">
+<h4 class="anchored" data-anchor-id="atlas-of-infected-cases-and-deaths">2. Atlas of infected cases and deaths</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Map the cumulative number of infections</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(world_data) <span class="sc">+</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Cumulative_cases)) <span class="sc">+</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"plasma"</span>, <span class="at">trans =</span> <span class="st">"log10"</span>, <span class="at">labels =</span> comma, <span class="at">na.value =</span> <span class="st">"grey90"</span>) <span class="sc">+</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of global cumulative number of infections"</span>,</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="st">"Cumulative cases"</span>) <span class="sc">+</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in scale_fill_viridis_c(option = "plasma", trans = "log10", labels =
+comma, : log-10 transformation introduced infinite values.</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-map-infections" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-map-infections-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="assignment4_template_ADDYOURNAMEHERE_files/figure-html/fig-map-infections-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-map-infections-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Distribution of global cumulative number of infections
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Map the cumulative number of deaths</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(world_data) <span class="sc">+</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Cumulative_deaths)) <span class="sc">+</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"inferno"</span>, <span class="at">trans =</span> <span class="st">"log10"</span>, <span class="at">labels =</span> comma, <span class="at">na.value =</span> <span class="st">"grey90"</span>) <span class="sc">+</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of global cumulative number of deaths"</span>,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="st">"Cumulative deaths"</span>) <span class="sc">+</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in scale_fill_viridis_c(option = "inferno", trans = "log10", labels =
+comma, : log-10 transformation introduced infinite values.</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-map-deaths" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-map-deaths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="assignment4_template_ADDYOURNAMEHERE_files/figure-html/fig-map-deaths-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-map-deaths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Distribution of global cumulative number of deaths
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>According to <a href="#fig-map-infections" class="quarto-xref">Figure&nbsp;3</a> and <a href="#fig-map-deaths" class="quarto-xref">Figure&nbsp;4</a>, the global cumulative infection and death distribution is shown:</p>
+<ol type="1">
+<li>Cumulative infection distribution</li>
+</ol>
+<p>High-incidence areas: densely populated areas or areas with weak prevention and control.</p>
+<p>Medium-incidence areas: Europe, Southeast Asia, related to the spread of mutant strains.</p>
+<p>Low-incidence areas: remote islands or countries with early strict blockades.</p>
+<ol start="2" type="1">
+<li>Cumulative death distribution</li>
+</ol>
+<p>High mortality area: countries with medical overload or delayed response.</p>
+<p>Medium mortality area: areas hit hard by aging or mutant strains.</p>
+<p>Low mortality area: isolated or strong prevention and control areas.</p>
+<p>In conclusion, the number of deaths is not completely positively correlated with the number of infections, which depends on the level of medical care and vaccination. At the same time, long-term trends also reveal the profound impact of resource inequality on the outcome of the epidemic. The World Health Organization needs strategic planning and pays attention to the health status of economically underdeveloped areas.</p>
+</section>
+<section id="the-relationship-between-infections-cases-and-vaccinated" class="level4">
+<h4 class="anchored" data-anchor-id="the-relationship-between-infections-cases-and-vaccinated">3. The relationship between infections cases and vaccinated</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>max_cases <span class="ot">&lt;-</span> <span class="fu">max</span>(merged_data<span class="sc">$</span>Cumulative_cases, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>max_vax <span class="ot">&lt;-</span> <span class="fu">max</span>(merged_data<span class="sc">$</span>people_fully_vaccinated, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>merged_data <span class="ot">&lt;-</span> merged_data <span class="sc">%&gt;%</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">vax_scaled =</span> people_fully_vaccinated <span class="sc">*</span> max_cases <span class="sc">/</span> max_vax</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(merged_data, <span class="fu">aes</span>(<span class="at">x =</span> Date_reported)) <span class="sc">+</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> Cumulative_cases), <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">y =</span> Cumulative_cases), <span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"darkred"</span>) <span class="sc">+</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> vax_scaled), <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">y =</span> vax_scaled), <span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"darkblue"</span>) <span class="sc">+</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">date_breaks =</span> <span class="st">"1 year"</span>,</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">date_labels =</span> <span class="st">"%Y"</span>,</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(<span class="st">"2020-01-01"</span>, <span class="st">"2025-12-31"</span>))</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(</span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Cumulative number of infections"</span>,</span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> comma,</span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">sec.axis =</span> <span class="fu">sec_axis</span>(<span class="sc">~</span> . <span class="sc">*</span> max_vax <span class="sc">/</span> max_cases,</span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a>                        <span class="at">name =</span> <span class="st">"Number of people vaccinated"</span>, <span class="at">labels =</span> comma)</span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Type"</span>,</span>
+<span id="cb28-31"><a href="#cb28-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Number of infections"</span> <span class="ot">=</span> <span class="st">"red"</span>, <span class="st">"Number of people vaccinated"</span> <span class="ot">=</span> <span class="st">"blue"</span>)</span>
+<span id="cb28-32"><a href="#cb28-32" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb28-33"><a href="#cb28-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-34"><a href="#cb28-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb28-35"><a href="#cb28-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Global cumulative number of infections vs number of people vaccinated"</span>,</span>
+<span id="cb28-36"><a href="#cb28-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Year"</span></span>
+<span id="cb28-37"><a href="#cb28-37" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb28-38"><a href="#cb28-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb28-39"><a href="#cb28-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'
+`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: No shared levels found between `names(values)` of the manual scale and the
+data's colour values.</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-relationship" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-relationship-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="assignment4_template_ADDYOURNAMEHERE_files/figure-html/fig-relationship-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-relationship-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Global cumulative number of infections vs number of people vaccinated
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>According to <a href="#fig-relationship" class="quarto-xref">Figure&nbsp;5</a>, the relationship between global cumulative infections and vaccination is shown 2020: Infections increased, and vaccines were not widely available.</p>
+<p>2021: Infections surged and the virus mutated, and vaccination started</p>
+<p>2022: Infections reached their peak, vaccination popularization accelerated, and the growth rate slowed down.</p>
+<p>2023-2025: The effectiveness of medical and public health measures gradually reduced infections, and vaccine coverage reached a peak at this time.</p>
+<p>In short, this shows that vaccination is strongly correlated with the decline in infections, but there is a time lag.</p>
+</section>
 </section>
 <section id="conclusions-and-recommendations" class="level3">
 <h3 class="anchored" data-anchor-id="conclusions-and-recommendations">Conclusions and Recommendations</h3>
-<ol start="6" type="1">
-<li>References</li>
+<p>Through the analysis of relevant charts, we understand the overall trend of the development of the epidemic. The peak period is concentrated in 2021-2022. At the same time, since 2020, due to the popularization of vaccines, the recovery of medical systems in various countries and the effective implementation of prevention and control measures, the epidemic has begun to improve, and gradually stabilized and entered a normalized period between 2024 and 2025. In addition, vaccination has played a key role in reducing mortality and promoting social reopening, but unequal access to vaccines and inconsistent policy responses have hindered global economic recovery.</p>
+<p>By reflecting on this global emergency, the following suggestions are made:</p>
+<ol type="1">
+<li><p>Increase international cooperation in vaccine distribution and data sharing;</p></li>
+<li><p>Strengthen public health infrastructure to quickly expand and respond to emergencies;</p></li>
+<li><p>Strengthen exchanges between countries to implement economic recovery plans；</p></li>
+<li><p>Communities can set up psychological counseling rooms to pay attention to people’s mental health.</p></li>
+</ol>
+</section>
+<section id="references-1" class="level3">
+<h3 class="anchored" data-anchor-id="references-1">References</h3>
+<ol type="1">
+<li><p>CDC. (2024). CDC Museum COVID-19 Timeline. https://www.cdc.gov/museum/timeline/covid19.html</p></li>
+<li><p>Priya, S. S., Cuce, E., &amp; Sudhakar, K. (2021). A perspective of COVID 19 impact on global economy, energy and environment. International Journal of Sustainable Engineering, 14(6), 1290-1305. https://doi.org/10.1080/19397038.2021.1964634</p></li>
+<li><p>H. Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York, 2016.</p></li>
+<li><p>Wickham H, Pedersen T, Seidel D (2023). <em>scales: Scale Functions for Visualization</em>. R package version 1.3.0, <a href="https://CRAN.R-project.org/package=scales" class="uri">https://CRAN.R-project.org/package=scales</a>.</p></li>
 </ol>
 <!-- Task 3 Tab: Behind the Scenes -  -->
 </section>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
-<section id="whats-in-this-section" class="level3">
-<h3 class="anchored" data-anchor-id="whats-in-this-section">What’s in this section</h3>
-<p>Here is where you should tell us about your reflection on your analysis (Task 3).</p>
-<p>Again, these are the details about <strong>your</strong> perspective and the gritty details behind the scenes of your analysis.</p>
+<section id="q5" class="level3">
+<h3 class="anchored" data-anchor-id="q5">Q5</h3>
+<p>Tell us about parts of your data processing or analysis that weren’t “sexy” and wouldn’t typically be included in a blog post.</p>
+<p>When describing the development trend of COVID-19, we can compare the infection trends of several typical countries to analyze the global situation; or focus on the turning points of change and analyze them in detail in combination with events or important achievements.</p>
+<p>In addition, the data on the number of people vaccinated initially is used to analyze the relationship between vaccines and the number of infections. The data on the number of people vaccinated initially can be combined with the data on complete vaccinations or booster shots to further analyze the role of vaccines. ### Q6 Were there any challenges that you faced in conducting this analysis. These may take the form of data limitations or coding challenges?</p>
+<p>The main challenge is that when drawing the atlas, there is no latitude and longitude in the original data, only the country name, so I am proud to have learned to install and use <code>rnaturalearth</code> and <code>rnaturalearthdata</code>.</p>
+<p>In addition, when drawing a chart, sometimes such data is displayed, such as 2e+07, which made me learn <code>scale_y_continuous()</code> to set the number format.</p>
+<p>Finally, when I wanted to show the relationship between vaccination and the number of infections, I learned to use ‘sec.axis’ to scale one side of the data to draw a dual-axis chart.</p>
+</section>
+<section id="q7" class="level3">
+<h3 class="anchored" data-anchor-id="q7">Q7</h3>
+<p>Tell us about any imperfect parts of your work and how you would like to expand or improve this analysis in future? Be clear about any limitations or aspects of your analysis that fell beyond scope.</p>
+<p>When analyzing the relationship between vaccination and the number of infections, the strong correlation was demonstrated through the aggregated statistical data, and no further analysis was performed. I hope to learn regression analysis and other methods to further strengthen the analysis. In addition, as the epidemic develops, there are many variants and different vaccines being developed, and more relevant data can be collected to analyze the effects of different vaccines on different variants.</p>
+</section>
+<section id="q8" class="level3">
+<h3 class="anchored" data-anchor-id="q8">Q8</h3>
+<p>Also submit 4 earlier versions of your assignment to show your iterative process. These should be your messy versions and include exploratory code. We recommend you save these files as you progress through your assignment. Provide a short overview for markers of what you fixed/learnt/improved/changed between each file.</p>
+<p>This is <a href="https://github.com/JE-Rye/5512-A4.git">my repository</a></p>
 </section>
 </div>
 </div>
