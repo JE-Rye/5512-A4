@@ -37,7 +37,7 @@ The data for this analysis mainly comes from the COVID-19 dashboard data publish
 -   Privacy/Ethics: Data is publicly available and not of risk regarding privacy. Anonymization or falsification of content is prohibited.
 ```
 
-**Data Fields:**
+**Data Dictionary:**
 
 -   **Date_reported:** The date of reported cases statistics weekly
 
@@ -71,7 +71,7 @@ The data for this analysis mainly comes from the COVID-19 dashboard data publish
 -   Privacy/Ethics: Data is publicly available and not of risk regarding privacy. Anonymization or falsification of content is prohibited.
 ```
 
-**Data Fields:**
+**Data Dictionary:**
 
 -   **Entity:** Statistical region (continent)
 
