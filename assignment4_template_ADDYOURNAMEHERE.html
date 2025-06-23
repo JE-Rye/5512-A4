@@ -547,7 +547,11 @@ Figure&nbsp;5: Global cumulative number of infections vs number of people vaccin
 <h3 class="anchored" data-anchor-id="q5">Q5</h3>
 <p>Tell us about parts of your data processing or analysis that weren’t “sexy” and wouldn’t typically be included in a blog post.</p>
 <p>When describing the development trend of COVID-19, we can compare the infection trends of several typical countries to analyze the global situation; or focus on the turning points of change and analyze them in detail in combination with events or important achievements.</p>
-<p>In addition, the data on the number of people vaccinated initially is used to analyze the relationship between vaccines and the number of infections. The data on the number of people vaccinated initially can be combined with the data on complete vaccinations or booster shots to further analyze the role of vaccines. ### Q6 Were there any challenges that you faced in conducting this analysis. These may take the form of data limitations or coding challenges?</p>
+<p>In addition, the data on the number of people vaccinated initially is used to analyze the relationship between vaccines and the number of infections. The data on the number of people vaccinated initially can be combined with the data on complete vaccinations or booster shots to further analyze the role of vaccines.</p>
+</section>
+<section id="q6" class="level3">
+<h3 class="anchored" data-anchor-id="q6">Q6</h3>
+<p>Were there any challenges that you faced in conducting this analysis. These may take the form of data limitations or coding challenges?</p>
 <p>The main challenge is that when drawing the atlas, there is no latitude and longitude in the original data, only the country name, so I am proud to have learned to install and use <code>rnaturalearth</code> and <code>rnaturalearthdata</code>.</p>
 <p>In addition, when drawing a chart, sometimes such data is displayed, such as 2e+07, which made me learn <code>scale_y_continuous()</code> to set the number format.</p>
 <p>Finally, when I wanted to show the relationship between vaccination and the number of infections, I learned to use ‘sec.axis’ to scale one side of the data to draw a dual-axis chart.</p>

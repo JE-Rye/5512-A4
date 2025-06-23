@@ -387,7 +387,11 @@ Tell us about parts of your data processing or analysis that weren’t “sexy�
 
 When describing the development trend of COVID-19, we can compare the infection trends of several typical countries to analyze the global situation; or focus on the turning points of change and analyze them in detail in combination with events or important achievements.
 
-In addition, the data on the number of people vaccinated initially is used to analyze the relationship between vaccines and the number of infections. The data on the number of people vaccinated initially can be combined with the data on complete vaccinations or booster shots to further analyze the role of vaccines. \### Q6 Were there any challenges that you faced in conducting this analysis. These may take the form of data limitations or coding challenges?
+In addition, the data on the number of people vaccinated initially is used to analyze the relationship between vaccines and the number of infections. The data on the number of people vaccinated initially can be combined with the data on complete vaccinations or booster shots to further analyze the role of vaccines. 
+
+### Q6 
+
+Were there any challenges that you faced in conducting this analysis. These may take the form of data limitations or coding challenges?
 
 The main challenge is that when drawing the atlas, there is no latitude and longitude in the original data, only the country name, so I am proud to have learned to install and use `rnaturalearth` and `rnaturalearthdata`.
 
