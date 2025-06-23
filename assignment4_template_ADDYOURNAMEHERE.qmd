@@ -1,45 +1,221 @@
 ---
-title: "What is your blogpost title? Add it here??"
+title: "Analysis of the development trend of COVID-19"
 subtitle: "Assignment 4 ETC5512"
-author: "Who are you?? Add your name here"
+author: "34441883 LIXIN ZHANG"
 format: html
 editor: visual
 ---
 
-
 ::: {.panel-tabset}
 
 <!-- Task 1 Tab: Data and Documenting -->
-## Data and Documenting
+## Data Details 
+### Topic of this work
+In this project, we will study the development trend of COVID-19 from 2020 to 2025. Does the mortality rate decrease over time? The reason I chose this topic is that COVID-19 is one of the most concerned infectious diseases in the past decade. Its rapid spread, wide range of affected areas, long duration, etc. have attracted the attention of many people in society.
 
-### What's in this section
+### Data description
+The data for this analysis mainly comes from the COVID-19 dashboard data published on the World Health Organization’s official website. These data are suitable for analysis of the trend of COVID-19 infection in the past five years, including the changes in the number of new deaths and infections over time, and the comparison of the cumulative number of deaths and infections in each region.
 
-Here is where you should provide the more comprehensive details about your data and your processing steps.
+**Datasets:**
 
-These are the data details that an "average" blog post reader is not concerned with (Task 1). 
+  **Weekly COVID-19 cases and deaths by date reported to WHO:**
 
-### Remember
+    -   Source: World Health Organization (WHO)
 
-Please mention any additional files that you want the markers to review, eg. read me, meta data etc.
+    -   Content: New cases and deaths, cumulative cases and deaths, as counted by the different regions of World Health Organization every week.
+
+    -   Last Updated: 2025
+
+    -   Data Type: Census
+
+    -   Limitations: Due to differences in case discovery, definitions, and testing strategies in different places, there may be some deviations in the statistical data.
+
+    -   Privacy/Ethics: Data is publicly available and not of risk regarding privacy. Anonymization or falsification of content is prohibited.
+    
+  **Data Fields:**
+
+-   **Date_reported:** The date of reported cases statistics weekly
+
+-   **Country_code:** The code of countries
+
+-   **Country:** The country where the case occurred
+
+-   **WHO_region:** The region of the WHO
+
+-   **New_cases:** New infections per week
+
+-   **Cumulative_cases:** New cumulative infections per week
+
+-   **New deaths:** New deaths per week
+
+-   **Cumulative_deaths:** New cumulative deaths per week
+
+### Data download
+```{r}
+library(readr)
+who_data <- read_csv("https://srhdpeuwpubsa.blob.core.windows.net/whdh/COVID/WHO-COVID-19-global-data.csv")
+```
+### Data Processing
+```{r}
+# Step1: replace the value of NA into "0"
+who_data[, sapply(who_data, is.numeric)] <- lapply(who_data[, sapply(who_data, is.numeric)], function(x) ifelse(is.na(x), 0, x))
+
+# Step2: transform date type
+who_data$Date_reported <- as.Date(who_data$Date_reported)
+
+# Step3: Aggregate global data
+library(dplyr)
+weekly_global <- who_data %>%
+  group_by(Date_reported) %>%
+  summarise(
+    New_cases = sum(New_cases, na.rm = TRUE),
+    New_deaths = sum(New_deaths, na.rm = TRUE),
+    Cumulative_cases = sum(New_cases, na.rm = TRUE),
+    Cumulative_deaths = sum(New_deaths, na.rm = TRUE)
+  )
+
+# Step4: Aggregate every country data
+country_data <- who_data %>%
+  group_by(Country) %>%
+  filter(Date_reported == max(Date_reported)) %>%
+  select(Date_reported, Country, Cumulative_cases, Cumulative_deaths)
+
+# Step5: get world map data (country outlines)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+# Step6: Merge map data and WHO statistics
+world_data <- left_join(world, country_data, by = c("name" = "Country"))
+
+
+```
+
+### references
+1. Wickham H, Hester J, Bryan J (2024). _readr: Read Rectangular Text Data_. R package version 2.1.5, <https://CRAN.R-project.org/package=readr>.
+
+2. Wickham H, François R, Henry L, Müller K, Vaughan D (2023). _dplyr: A Grammar of Data
+  Manipulation_. R package version 1.1.4, <https://CRAN.R-project.org/package=dplyr>.
+  
+3. Pebesma, E., & Bivand, R. (2023). Spatial Data Science: With Applications in R. Chapman and Hall/CRC.
+  https://doi.org/10.1201/9780429459016
+  
+4. Massicotte P, South A (2023). _rnaturalearth: World Map Data from Natural Earth_. R package version
+  1.0.1, <https://CRAN.R-project.org/package=rnaturalearth>.
+  
+5. South A, Michael S, Massicotte P (2024). _rnaturalearthdata: World Vector Map Data from Natural Earth Used in 'rnaturalearth'_. R package version 1.0.0,
+  <https://CRAN.R-project.org/package=rnaturalearthdata>.
 
 <!-- Task 2 Tab: Writing your blogpost -->
-
 ## Blog post 
+### Introduction
+On December 12, 2019, a group of patients with atypical pneumonia appeared in Wuhan, Hubei Province, China. Since then, similar patients have continued to appear. On January 10, 2020, the World Health Organization used "2019 Novel Coronavirus" or "2019-nCoV" to refer to this epidemic (CDC, 2024). At the same time, the epidemic spread rapidly in 2020 and swept the world until the situation gradually stabilized in 2022 and countries resumed normal economic operations. This epidemic has almost disrupted daily life, affected the global medical system, and hit countries economically. It is the most serious infectious disease in the past decade. This report mainly analyzes the development trend of COVID-19 through the data on the number of new infections and deaths released by the WHO from 2020 to 2025, including the growth pattern of cases and the impact of subsequent vaccine popularization on the epidemic. Through the analysis of five years of key data and indicators, we can not only understand the evolution of the epidemic, but also provide experience and lessons for future global health emergencies.
+### Motivation
+It is undeniable that COVID-19 is the most serious infectious disease in the past decade, exposing the fragility of medical infrastructure and policy coordination for emergency response. Priya et. al.(2021) stated that the incident had a significant impact on energy, economy and environment, including the collapse of energy markets leading to oversupply and falling oil prices. In addition, the epidemic has been repeated, and the emergence of variants has made case studies more difficult. In addition, there are differences in economic level and culture between regions, resulting in different response methods and results in various places.
 
-### What's in this section
+This report systematically sorts out the changing trends and key nodes of the epidemic in the past five years, fully evaluates the epidemic prevention in this incident, provides experience and lessons for the development of global public health, and establishes a sustainable development system in the future.
 
-Here is where you should write your blogpost! (Task 2)
+### Methodology
+This report mainly uses the latest weekly reports of COVID-19 cases and deaths published on the WHO website. Focus on observing and analyzing relevant indicators, including weekly new cases and deaths, cumulative new cases and deaths, and mortality rates, which are mainly divided into three periods: initial outbreak period, normalized prevention and control period, full release period, and stable control period.
 
-### Blogpost Structure
+Analysis method:
 
-There is no strict structure for you to follow. However, here is a skeleton structure you may find helpful. 
+Mortality rate = cumulative number of deaths/cumulative number of infected cases
 
-1. Title (is set at the top of this document)
-2. Motivation  
-3. Data  
-4. Analysis     
-5. Conclusions  
-6. References 
+1. Draw a time series of new deaths and infections: get a preliminary understanding of the development trend of the new crown.
+
+2. Atlas of infected cases: compare the severity of each region and evaluate the response.
+
+### Analysis
+#### 1
+```{r}
+#| label: fig-trend-infections
+#| fig-cap: "Trend in the number of new infections worldwide"
+library(ggplot2)
+library(scales)
+# 1. Scatter plot of new infections + trend line
+ggplot(weekly_global, aes(x = Date_reported, y = New_cases)) +
+  geom_point(alpha = 0.3, color = "steelblue") +
+  geom_smooth(method = "loess", se = FALSE, color = "darkblue", size = 1) +
+  scale_x_date(
+    date_breaks = "1 year",
+    date_labels = "%Y",
+    limits = as.Date(c("2020-01-01", "2025-12-31"))
+  ) +
+  scale_y_continuous(labels = scales::comma) +
+  labs(
+    title = "Trends in the number of new infections worldwide",
+    x = "Year", y = "Number of new confirmed cases"
+  ) +
+  theme_minimal()
+```
+
+
+```{r}
+#| label: fig-trend-deaths
+#| fig-cap: "Trend of new deaths worldwide every day"
+# 2. Scatter plot + trend line of new deaths
+ggplot(weekly_global, aes(x = Date_reported, y = New_deaths)) +
+  geom_point(alpha = 0.3, color = "tomato") +
+  geom_smooth(method = "loess", se = FALSE, color = "darkred", size = 1) +
+  scale_x_date(
+    date_breaks = "1 year",
+    date_labels = "%Y",
+    limits = as.Date(c("2020-01-01", "2025-12-31"))
+  ) +
+  scale_y_continuous(labels = scales::comma) +
+  labs(
+    title = "Trend of new deaths worldwide every day",
+    x = "Year", y = "Number of new deaths"
+  ) +
+  theme_minimal()
+```
+
+#### 2.
+```{r}
+#| label: fig-map-infections
+#| fig-cap: "Distribution of global cumulative number of infections"
+# 1. Map the cumulative number of infections
+ggplot(world_data) +
+  geom_sf(aes(fill = Cumulative_cases)) +
+  scale_fill_viridis_c(option = "plasma", trans = "log10", labels = comma, na.value = "grey90") +
+  labs(title = "Distribution of global cumulative number of infections",
+       fill = "Cumulative cases") +
+  theme_minimal()
+```
+
+```{r}
+#| label: fig-map-deaths
+#| fig-cap: "Distribution of global cumulative number of deaths"
+# 2. Map the cumulative number of deaths
+ggplot(world_data) +
+  geom_sf(aes(fill = Cumulative_deaths)) +
+  scale_fill_viridis_c(option = "inferno", trans = "log10", labels = comma, na.value = "grey90") +
+  labs(title = "Distribution of global cumulative number of deaths",
+       fill = "Cumulative deaths") +
+  theme_minimal()
+```
+
+
+
+
+
+
+### Conclusions and Recommendations 200
+
+### References 
+1. CDC. (2024). CDC Museum COVID-19 Timeline. https://www.cdc.gov/museum/timeline/covid19.html
+
+2. Priya, S. S., Cuce, E., & Sudhakar, K. (2021). A perspective of COVID 19 impact on global economy, energy and environment. International Journal of Sustainable Engineering, 14(6), 1290-1305. https://doi.org/10.1080/19397038.2021.1964634
+
+3. H. Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York, 2016.
+
+4. Wickham H, Pedersen T, Seidel D (2023). _scales: Scale Functions for Visualization_. R
+  package version 1.3.0, <https://CRAN.R-project.org/package=scales>.
+  
+
+  
 
 
 <!-- Task 3 Tab: Behind the Scenes -  -->
